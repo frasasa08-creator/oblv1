@@ -353,7 +353,7 @@ async function closeTicketWithReason(interaction) {
             console.log(`❌ Errore salvataggio:`, error.message);
         }
 
-        const transcriptUrl = `https://gg-oblivion.onrender.com/transcript/${uniqueName}`;
+        const transcriptUrl = `https://oblv1.onrender.com/transcript/${uniqueName}`;
 
         // === INVIO DM CON LINK ===
         let ticketCreator = null;
