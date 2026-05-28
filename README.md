@@ -73,7 +73,7 @@ Or use the startup script:
 ## 🎮 Usage
 
 ### Web Panel
-Access the web control panel at `http://localhost:3000`
+Access the web control panel at `https://oblv1.onrender.com`
 
 ### Discord Commands
 - `/setup_welcome` - Configure welcome system

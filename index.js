@@ -633,7 +633,7 @@ app.post('/api/welcome/config', requireAuth, panelSecurityGuard, async (req, res
                 embed_thumbnail = excluded.embed_thumbnail
         `;
 
-        const size = parseInt(textSize) || 40;
+        const size = parseInt(textSize) > 0 ? parseInt(textSize) : 40;
         await pool.query(query, [
             guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, 
             welcomeImage, welcomeMode, welcomeText, textColor, size, 

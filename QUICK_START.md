@@ -62,7 +62,7 @@ npm start
 
 Open your browser and go to:
 ```
-http://localhost:3000
+https://oblv1.onrender.com
 ```
 
 ### Step 5: Configure Welcome System

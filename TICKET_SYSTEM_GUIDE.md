@@ -5,7 +5,7 @@
 ### Method 1: Using the Web Panel (Recommended)
 
 #### Step 1: Configure Ticket System
-1. Go to the web panel: `http://localhost:3000`
+1. Go to the web panel: `https://oblv1.onrender.com`
 2. Select your server from the dropdown
 3. Navigate to "Ticket System" section
 4. Fill in the configuration:

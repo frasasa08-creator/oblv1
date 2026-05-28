@@ -42,67 +42,35 @@ function initializeDatabase() {
         )
     `);
 
-    // Add new columns to welcome_config if they don't exist
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN welcome_text TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN avatar_border_color TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN avatar_border_width INTEGER`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN avatar_position TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN welcome_mode TEXT DEFAULT 'image'`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN text_color TEXT DEFAULT '#FFFFFF'`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN text_size INTEGER DEFAULT 40`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN show_member_count INTEGER DEFAULT 0`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_title TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_description TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_thumbnail TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
-    try {
-        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_color TEXT`);
-    } catch (e) {
-        // Column already exists
-    }
+    // Migrazione sicura per welcome_config
+    const welcomeColumns = db.prepare("PRAGMA table_info(welcome_config)").all();
+    const columnNames = welcomeColumns.map(c => c.name);
+
+    const migrations = [
+        { name: 'welcome_text', type: 'TEXT' },
+        { name: 'avatar_border_color', type: 'TEXT' },
+        { name: 'avatar_border_width', type: 'INTEGER' },
+        { name: 'avatar_position', type: 'TEXT' },
+        { name: 'welcome_mode', type: "TEXT DEFAULT 'image'" },
+        { name: 'text_color', type: "TEXT DEFAULT '#FFFFFF'" },
+        { name: 'text_size', type: 'INTEGER DEFAULT 40' },
+        { name: 'show_member_count', type: 'INTEGER DEFAULT 0' },
+        { name: 'embed_title', type: 'TEXT' },
+        { name: 'embed_description', type: 'TEXT' },
+        { name: 'embed_thumbnail', type: 'TEXT' },
+        { name: 'embed_color', type: 'TEXT' }
+    ];
+
+    migrations.forEach(col => {
+        if (!columnNames.includes(col.name)) {
+            try {
+                db.exec(`ALTER TABLE welcome_config ADD COLUMN ${col.name} ${col.type}`);
+                console.log(`✅ Aggiunta colonna ${col.name} a welcome_config`);
+            } catch (err) {
+                console.error(`❌ Errore aggiunta colonna ${col.name}:`, err.message);
+            }
+        }
+    });
 
     // Ticket System Configuration
     db.exec(`
