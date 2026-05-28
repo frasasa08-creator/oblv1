@@ -26,9 +26,17 @@ function initializeDatabase() {
             quit_log_channel TEXT,
             welcome_image TEXT,
             welcome_text TEXT,
+            welcome_mode TEXT DEFAULT 'image',
             avatar_border_color TEXT,
             avatar_border_width INTEGER,
             avatar_position TEXT,
+            text_color TEXT DEFAULT '#FFFFFF',
+            text_size INTEGER DEFAULT 40,
+            show_member_count INTEGER DEFAULT 0,
+            embed_title TEXT,
+            embed_description TEXT,
+            embed_thumbnail TEXT,
+            embed_color TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -437,6 +445,19 @@ function initializeDatabase() {
     insertConfig.run('bot_name', 'BossBot');
     insertConfig.run('bot_status', 'Online');
     insertConfig.run('bot_activity_type', 'PLAYING');
+
+    // Guild-Specific Bot Configuration (Necessaria per Nickname/Avatar per server)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS guild_bot_config (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id TEXT UNIQUE NOT NULL,
+            nickname TEXT,
+            guild_avatar TEXT,
+            status_text TEXT,
+            status_type TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
 
     console.log('✅ SQLite database initialized successfully');
 }
