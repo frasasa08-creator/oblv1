@@ -3,7 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 /**
  * Crea l'embed di benvenuto
  */
-async function createWelcomeEmbed(user, memberCount, config) {
+async function createWelcomeEmbed(user, memberCount, welcomeImageUrl, embedColor = 0xFFFFFF) {
     try {
         // Formatta il numero del membro con suffisso (1st, 2nd, 3rd, etc.)
         const getNumberWithSuffix = (number) => {
@@ -18,25 +18,12 @@ async function createWelcomeEmbed(user, memberCount, config) {
 
         const formattedMemberCount = getNumberWithSuffix(memberCount);
 
-        // Sostituzione segnaposti nel titolo e descrizione
-        const title = (config.embed_title || 'WELCOME')
-            .replace(/{user}/g, user.username)
-            .replace(/{count}/g, formattedMemberCount);
-
-        const description = (config.embed_description || `Benvenuto ${user} negli Oblivion, sei il ${formattedMemberCount} membro!`)
-            .replace(/{user}/g, user.toString())
-            .replace(/{count}/g, formattedMemberCount)
-            .replace(/\\n/g, '\n');
-
         // Crea l'embed
         const embed = new EmbedBuilder()
-            .setTitle(title)
-            .setDescription(description)
-            .setColor(config.embed_color ? parseInt(config.embed_color.replace('#', ''), 16) : 0xFFFFFF);
-
-        if (config.welcome_image) embed.setImage(config.welcome_image);
-        if (config.embed_thumbnail) embed.setThumbnail(config.embed_thumbnail);
-
+            .setTitle('WELCOME')
+            .setDescription(`Benvenuto ${user} negli Oblivion, sei il ${formattedMemberCount} membro!`)
+            .setImage(welcomeImageUrl)
+            .setColor(embedColor)
             //.setTimestamp();
 
         return { embeds: [embed] };
