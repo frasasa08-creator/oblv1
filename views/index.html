@@ -276,6 +276,12 @@
                                 Show Member Count
                             </label>
                         </div>
+                        <!-- Live Preview -->
+                        <div class="welcome-preview-container" style="margin-top: 20px; text-align: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                            <h4>Live Image Preview</h4>
+                            <img id="welcome-preview-img" src="https://i.imgur.com/Gpx7Fpg.png" alt="Preview" style="max-width: 100%; border: 2px solid #5865F2; border-radius: 5px;">
+                            <p style="font-size: 0.8rem; color: #b9bbbe; margin-top: 10px;">Aggiornamento automatico ogni volta che modifichi i valori.</p>
+                        </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i>
                             Save Welcome Config
@@ -537,5 +543,44 @@
     </div>
 
     <script src="/js/app.js"></script>
+    <script>
+        // Anteprima Real-time Immagine di Benvenuto
+        const previewInputs = ['welcome-image', 'welcome-text', 'text-color', 'text-size', 'avatar-border-color', 'avatar-border-width', 'show-member-count'];
+        let previewDebounce;
+
+        async function updatePreview() {
+            const data = {
+                welcomeImage: document.getElementById('welcome-image').value,
+                welcomeText: document.getElementById('welcome-text').value,
+                textColor: document.getElementById('text-color').value,
+                textSize: document.getElementById('text-size').value,
+                avatarBorderColor: document.getElementById('avatar-border-color').value,
+                avatarBorderWidth: document.getElementById('avatar-border-width').value,
+                showMemberCount: document.getElementById('show-member-count').checked
+            };
+
+            try {
+                const response = await fetch('/api/welcome/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    document.getElementById('welcome-preview-img').src = URL.createObjectURL(blob);
+                }
+            } catch (err) { console.error('Errore anteprima:', err); }
+        }
+
+        previewInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    clearTimeout(previewDebounce);
+                    previewDebounce = setTimeout(updatePreview, 600);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
