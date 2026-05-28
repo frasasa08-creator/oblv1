@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BossBot - Control Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background"></div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="bot-logo">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1>BossBot</h1>
+                <span class="version">v1.0.0</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#bot-config" class="nav-item" data-section="bot-config">
+                    <i class="fas fa-cog"></i>
+                    <span>Bot Config</span>
+                </a>
+                <a href="#welcome" class="nav-item" data-section="welcome">
+                    <i class="fas fa-door-open"></i>
+                    <span>Welcome System</span>
+                </a>
+                <a href="#tickets" class="nav-item" data-section="tickets">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Ticket System</span>
+                </a>
+                <a href="#embeds" class="nav-item" data-section="embeds">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Embed Creator</span>
+                </a>
+                <a href="#logs" class="nav-item" data-section="logs">
+                    <i class="fas fa-history"></i>
+                    <span>Server Logs</span>
+                </a>
+                <a href="#servers" class="nav-item" data-section="servers">
+                    <i class="fas fa-server"></i>
+                    <span>Servers</span>
+                </a>
+                <a href="#owner-security" class="nav-item" data-section="owner-security" id="owner-security-nav" style="display: none;">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Owner Security</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="server-selector">
+                        <select id="guild-select">
+                            <option value="">Select a server...</option>
+                        </select>
+                    </div>
+                    <div id="user-info" class="user-info" style="display: none;">
+                        <img id="user-avatar" class="user-avatar" src="" alt="User">
+                        <span id="user-name"></span>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                    <div id="login-button" class="login-button">
+                        <a href="/auth/discord" class="btn btn-primary">
+                            <i class="fab fa-discord"></i>
+                            Login with Discord
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stat-guilds">0</h3>
+                            <p>Servers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stat-users">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stat-ping">0ms</h3>
+                            <p>Ping</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stat-uptime">0h</h3>
+                            <p>Uptime</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Recent Activity</h3>
+                        <div id="recent-activity" class="activity-list">
+                            <p class="no-data">No recent activity</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="btn btn-secondary" onclick="showSection('bot-config')">
+                                <i class="fas fa-cog"></i>
+                                Configure Bot
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('embeds')">
+                                <i class="fas fa-comment-dots"></i>
+                                Create Embed
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('logs')">
+                                <i class="fas fa-history"></i>
+                                View Logs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bot Config Section -->
+            <section id="bot-config-section" class="content-section">
+                <div class="card">
+                    <h3>Bot Configuration</h3>
+                    <form id="bot-config-form">
+                        <div class="form-group">
+                            <label for="bot-name">Bot Name</label>
+                            <input type="text" id="bot-name" name="name" placeholder="Enter bot name">
+                        </div>
+                        <div class="form-group">
+                            <label for="bot-avatar">Avatar URL</label>
+                            <input type="url" id="bot-avatar" name="avatar" placeholder="Enter avatar URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="bot-status">Status Activity</label>
+                            <input type="text" id="bot-status" name="status" placeholder="Enter status text">
+                        </div>
+                        <div class="form-group">
+                            <label for="bot-status-type">Status Type</label>
+                            <select id="bot-status-type" name="statusType">
+                                <option value="PLAYING">Playing</option>
+                                <option value="WATCHING">Watching</option>
+                                <option value="LISTENING">Listening</option>
+                                <option value="STREAMING">Streaming</option>
+                                <option value="COMPETING">Competing</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Configuration
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Welcome System Section -->
+            <section id="welcome-section" class="content-section">
+                <div class="card">
+                    <h3>Welcome System Configuration</h3>
+                    <form id="welcome-config-form">
+                        <div class="form-group">
+                            <label for="welcome-channel">Welcome Channel</label>
+                            <select id="welcome-channel" name="welcomeChannel">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-log-channel">Welcome Log Channel</label>
+                            <select id="welcome-log-channel" name="welcomeLogChannel">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quit-log-channel">Quit Log Channel</label>
+                            <select id="quit-log-channel" name="quitLogChannel">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-image">Welcome Image URL</label>
+                            <input type="url" id="welcome-image" name="welcomeImage" placeholder="Enter welcome image URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-mode">Welcome Mode</label>
+                            <select id="welcome-mode" name="welcomeMode">
+                                <option value="image">Image with Text</option>
+                                <option value="embed">Embed Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-text">Welcome Text</label>
+                            <input type="text" id="welcome-text" name="welcomeText" placeholder="Welcome {username} to the server!">
+                        </div>
+                        <div class="form-group">
+                            <label for="text-color">Text Color</label>
+                            <input type="color" id="text-color" name="textColor" value="#FFFFFF">
+                        </div>
+                        <div class="form-group">
+                            <label for="text-size">Text Size</label>
+                            <input type="number" id="text-size" name="textSize" value="40" min="20" max="80">
+                        </div>
+                        <div class="form-group">
+                            <label for="avatar-border-color">Avatar Border Color</label>
+                            <input type="color" id="avatar-border-color" name="avatarBorderColor" value="#FFFFFF">
+                        </div>
+                        <div class="form-group">
+                            <label for="avatar-border-width">Avatar Border Width</label>
+                            <input type="number" id="avatar-border-width" name="avatarBorderWidth" value="5" min="0" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="show-member-count" name="showMemberCount">
+                                Show Member Count
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Welcome Config
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Ticket System Section -->
+            <section id="tickets-section" class="content-section">
+                <div class="card">
+                    <h3>Ticket System Configuration</h3>
+                    <form id="ticket-config-form">
+                        <div class="form-group">
+                            <label for="ticket-log-channel">Ticket Log Channel</label>
+                            <select id="ticket-log-channel" name="logChannel">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-title">Panel Title</label>
+                            <input type="text" id="ticket-title" name="title" placeholder="Enter panel title">
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-description">Panel Description</label>
+                            <textarea id="ticket-description" name="description" rows="4" placeholder="Enter panel description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-color">Embed Color</label>
+                            <input type="color" id="ticket-color" name="color" value="#5865F2">
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-image">Panel Image URL</label>
+                            <input type="url" id="ticket-image" name="image" placeholder="Enter panel image URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-footer">Footer Text</label>
+                            <input type="text" id="ticket-footer" name="footer" placeholder="Enter footer text">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="ticket-timestamp" name="showTimestamp" checked>
+                                Show Timestamp
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Ticket Options</label>
+                            <div id="ticket-options-container">
+                                <div class="ticket-option">
+                                    <input type="text" name="option[]" placeholder="Option label">
+                                    <input type="text" name="optionEmoji[]" placeholder="Emoji (e.g., 🎫)">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeTicketOption(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="addTicketOption()">
+                                <i class="fas fa-plus"></i>
+                                Add Option
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Ticket Config
+                        </button>
+                    </form>
+                    <div class="ticket-panel-creator">
+                        <h4>Create Ticket Panel</h4>
+                        <p>After saving your configuration, create the ticket panel in your server:</p>
+                        <div class="form-group">
+                            <label for="ticket-panel-channel">Target Channel</label>
+                            <select id="ticket-panel-channel">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="createTicketPanel()">
+                            <i class="fas fa-plus-circle"></i>
+                            Create Ticket Panel
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Embed Creator Section -->
+            <section id="embeds-section" class="content-section">
+                <div class="card">
+                    <h3>Create Embed</h3>
+                    <form id="embed-form">
+                        <div class="form-group">
+                            <label for="embed-channel">Target Channel</label>
+                            <select id="embed-channel" name="channelId">
+                                <option value="">Select channel...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-title">Title</label>
+                            <input type="text" id="embed-title" name="title" placeholder="Enter embed title">
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-description">Description</label>
+                            <textarea id="embed-description" name="description" rows="4" placeholder="Enter embed description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-color">Color (Hex)</label>
+                            <input type="color" id="embed-color" name="color" value="#5865F2">
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-thumbnail">Thumbnail URL</label>
+                            <input type="url" id="embed-thumbnail" name="thumbnail" placeholder="Enter thumbnail URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-image">Image URL</label>
+                            <input type="url" id="embed-image" name="image" placeholder="Enter image URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-footer">Footer Text</label>
+                            <input type="text" id="embed-footer" name="footer" placeholder="Enter footer text">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Embed
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Logs Section -->
+            <section id="logs-section" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Server Logs</h3>
+                    </div>
+                    <div class="log-search">
+                        <div class="search-row">
+                            <div class="form-group">
+                                <label for="log-search-keyword">Keyword Search</label>
+                                <input type="text" id="log-search-keyword" placeholder="Search by keyword...">
+                            </div>
+                            <div class="form-group">
+                                <label for="log-search-user">User ID / Mention</label>
+                                <input type="text" id="log-search-user" placeholder="Enter user ID...">
+                            </div>
+                        </div>
+                        <div class="search-row">
+                            <div class="form-group">
+                                <label for="log-type-filter">Log Type</label>
+                                <select id="log-type-filter">
+                                    <option value="">All Types</option>
+                                    <option value="channelupdated">channelupdated</option>
+                                    <option value="membermuted">membermuted</option>
+                                    <option value="messagedeleted">messagedeleted</option>
+                                    <option value="messageedited">messageedited</option>
+                                    <option value="rolesupdated">rolesupdated</option>
+                                    <option value="userbanned">userbanned</option>
+                                    <option value="userkicked">userkicked</option>
+                                    <option value="memberleft">memberleft</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="log-search-start-date">Start Date</label>
+                                <input type="date" id="log-search-start-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="log-search-end-date">End Date</label>
+                                <input type="date" id="log-search-end-date">
+                            </div>
+                        </div>
+                        <div class="search-actions">
+                            <button class="btn btn-primary" onclick="searchLogs()">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearLogSearch()">
+                                <i class="fas fa-times"></i>
+                                Clear
+                            </button>
+                            <button class="btn btn-secondary" onclick="refreshLogs()">
+                                <i class="fas fa-sync"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div id="logs-container" class="logs-container">
+                        <p class="no-data">Select a server to view logs</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Servers Section -->
+            <section id="servers-section" class="content-section">
+                <div class="card">
+                    <h3>Server Management</h3>
+                    <div id="servers-list" class="servers-list">
+                        <p class="no-data">Loading servers...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Owner Security Section -->
+            <section id="owner-security-section" class="content-section">
+                <div class="card">
+                    <h3>Owner Security Console</h3>
+                    <div class="search-row">
+                        <div class="form-group">
+                            <label>Viewer IP</label>
+                            <input id="owner-viewer-ip" type="text" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Viewer Fingerprint</label>
+                            <input id="owner-viewer-fingerprint" type="text" readonly>
+                        </div>
+                    </div>
+
+                    <form id="owner-security-block-form">
+                        <div class="search-row">
+                            <div class="form-group">
+                                <label for="owner-block-type">Block Type</label>
+                                <select id="owner-block-type" name="blockType">
+                                    <option value="ip">IP</option>
+                                    <option value="subnet">Subnet (CIDR)</option>
+                                    <option value="fingerprint">Fingerprint</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="owner-block-value">Value</label>
+                                <input id="owner-block-value" name="value" type="text" placeholder="e.g. 1.2.3.4 or 1.2.3.0/24" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="owner-block-duration">Duration (minutes, optional)</label>
+                                <input id="owner-block-duration" name="durationMinutes" type="number" min="1" placeholder="leave empty for permanent">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="owner-block-reason">Reason</label>
+                            <input id="owner-block-reason" name="reason" type="text" placeholder="Security reason">
+                        </div>
+                        <button class="btn btn-danger" type="submit">
+                            <i class="fas fa-ban"></i>
+                            Create Block
+                        </button>
+                        <button class="btn btn-secondary" type="button" onclick="loadOwnerSecurityOverview()">
+                            <i class="fas fa-sync"></i>
+                            Refresh
+                        </button>
+                    </form>
+
+                    <h4 style="margin-top: 1.5rem;">Active Blocks</h4>
+                    <div id="owner-security-blocks" class="logs-container">
+                        <p class="no-data">Select a server to load owner security data</p>
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem;">Recent Security Audit</h4>
+                    <div id="owner-security-audit" class="logs-container">
+                        <p class="no-data">Select a server to load owner security data</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
