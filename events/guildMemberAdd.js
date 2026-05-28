@@ -23,7 +23,8 @@ async function handleWelcomeSystem(member, pool) {
     try {
         // Get welcome settings from database
         const result = await pool.query(
-            'SELECT guild.id]
+            'SELECT * FROM welcome_config WHERE guild_id = ?',
+            [member.guild.id]
         );
 
         if (result.rows.length === 0 || !result.rows[0].welcome_channel) {
@@ -32,26 +33,47 @@ async function handleWelcomeSystem(member, pool) {
 
         const settings = result.rows[0];
         const welcomeChannel = member.guild.channels.cache.get(settings.welcome_channel);
-        if (!welcomeChannel) {
-            return;
-        }
+        if (!welcomeChannel) return;
 
         const welcomeMode = settings.welcome_mode || 'image'; // 'image' or 'embed'
-ustom del sito
+
+        // Creiamo l'embed usando l'utility che supporta placeholder e configurazioni custom del sito
         const welcomeData = await createWelcomeEmbed(member.user, member.guild.memberCount, settings);
-d     const imageAttachment = await createWelcomeImage(member, settings);
+
+        if (welcomeMode === 'embed') {
+            await welcomeChannel.send(welcomeData);
+        } else {
+            // Send image with text
+            try {
+                const imageAttachment = await createWelcomeImage(member, settings);
                 await welcomeChannel.send({ 
                     embeds: welcomeData.embeds, 
                     files: [imageAttachment] 
-            me(        { name: '👥 To'
-                    .setTimestamp()
-                    .setThumbnail((e system:', error);
-    }  = canvas.getContext('2d');
+                });
+            } catch (error) {
+                console.error('Error creating welcome image, falling back to embed:', error);
+                await welcomeChannel.send(welcomeData);
+            }
+        }
+    } catch (error) {
+        console.error('Error in welcome system:', error);
+    }
+}
+
+async function createWelcomeImage(member, settings) {
+    const canvas = createCanvas(800, 400);
+    const ctx = canvas.getContext('2d');
 
     // Load background image
-    let backgroundImage;
-    try {otok
-/ Avatar se
+    try {
+        const backgroundImage = await loadImage(settings.welcome_image || 'https://i.imgur.com/Gpx7Fpg.png');
+        ctx.drawImage(backgroundImage, 0, 0, 800, 400);
+    } catch (error) {
+        ctx.fillStyle = '#2c2f33';
+        ctx.fillRect(0, 0, 800, 400);
+    }
+
+    const avatar = await loadImage(member.user.displayAvatarURL({ extension: 'png', size: 256 }));
     const avatarSize = 150;
     const avatarX = 400; // Center horizontally
     const avatarY = 150; // Position
