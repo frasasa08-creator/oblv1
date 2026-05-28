@@ -35,8 +35,17 @@ async function createWelcomeEmbed(user, memberCount, config) {
             .setDescription(description)
             .setColor(config.embed_color ? parseInt(config.embed_color.replace('#', ''), 16) : 0xFFFFFF);
 
-        if (config.welcome_image) embed.setImage(config.welcome_image);
-        if (config.embed_thumbnail) embed.setThumbnail(config.embed_thumbnail);
+        const welcomeImageUrl = config.welcome_image;
+        const embedThumbnailUrl = config.embed_thumbnail;
+
+        console.log('DEBUG createWelcomeEmbed: welcomeImageUrl (before set):', welcomeImageUrl, 'type:', typeof welcomeImageUrl);
+        if (welcomeImageUrl) {
+            embed.setImage(String(welcomeImageUrl)); // Converte esplicitamente a stringa primitiva
+        }
+        console.log('DEBUG createWelcomeEmbed: embedThumbnailUrl (before set):', embedThumbnailUrl, 'type:', typeof embedThumbnailUrl);
+        if (embedThumbnailUrl) {
+            embed.setThumbnail(String(embedThumbnailUrl)); // Converte esplicitamente a stringa primitiva
+        }
 
             //.setTimestamp();
 
