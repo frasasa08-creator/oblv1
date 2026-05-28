@@ -75,6 +75,26 @@ function initializeDatabase() {
     } catch (e) {
         // Column already exists
     }
+    try {
+        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_title TEXT`);
+    } catch (e) {
+        // Column already exists
+    }
+    try {
+        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_description TEXT`);
+    } catch (e) {
+        // Column already exists
+    }
+    try {
+        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_thumbnail TEXT`);
+    } catch (e) {
+        // Column already exists
+    }
+    try {
+        db.exec(`ALTER TABLE welcome_config ADD COLUMN embed_color TEXT`);
+    } catch (e) {
+        // Column already exists
+    }
 
     // Ticket System Configuration
     db.exec(`
