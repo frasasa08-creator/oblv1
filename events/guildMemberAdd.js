@@ -1,6 +1,5 @@
 const { Events, EmbedBuilder } = require('discord.js');
-const { createCanvas, loadImage } = require('canvas');
-const { createWelcomeEmbed } = require('../utils/welcomeUtils');
+const { createWelcomeEmbed, createWelcomeImage } = require('../utils/welcomeUtils');
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -45,7 +44,7 @@ async function handleWelcomeSystem(member, pool) {
         } else {
             // Send image with text
             try {
-                const imageAttachment = await createWelcomeImage(member, settings);
+                const imageAttachment = await createWelcomeImage(member.user, member.guild, settings);
                 await welcomeChannel.send({ 
                     embeds: welcomeData.embeds, 
                     files: [imageAttachment] 
@@ -58,87 +57,6 @@ async function handleWelcomeSystem(member, pool) {
     } catch (error) {
         console.error('Error in welcome system:', error);
     }
-}
-
-async function createWelcomeImage(member, settings) {
-    const canvas = createCanvas(800, 400);
-    const ctx = canvas.getContext('2d');
-
-    // Load background image
-    try {
-        const backgroundImage = await loadImage(settings.welcome_image || 'https://i.imgur.com/Gpx7Fpg.png');
-        ctx.drawImage(backgroundImage, 0, 0, 800, 400);
-    } catch (error) {
-        ctx.fillStyle = '#2c2f33';
-        ctx.fillRect(0, 0, 800, 400);
-    }
-
-    const avatar = await loadImage(member.user.displayAvatarURL({ extension: 'png', size: 256 }));
-    const avatarSize = 150;
-    const avatarX = 400; // Center horizontally
-    const avatarY = 150; // Position
-    const borderColor = settings.avatar_border_color || '#FFFFFF';
-    const borderWidth = settings.avatar_border_width || 5;
-
-    // Draw avatar border
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(avatarX, avatarY, avatarSize / 2 + borderWidth, 0, Math.PI * 2);
-    ctx.fillStyle = borderColor;
-    ctx.fill();
-
-    // Draw avatar circle
-    ctx.beginPath();
-    ctx.arc(avatarX, avatarY, avatarSize / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(avatar, avatarX - avatarSize / 2, avatarY - avatarSize / 2, avatarSize, avatarSize);
-    ctx.restore();
-
-    // Draw welcome text with placeholder support
-    let welcomeText = settings.welcome_text || `Welcome {username} to the server!`;
-    // Replace placeholders
-    welcomeText = welcomeText.replace(/{username}/g, member.user.username);
-    welcomeText = welcomeText.replace(/{user}/g, member.user.username);
-    welcomeText = welcomeText.replace(/{mention}/g, `<@${member.user.id}>`);
-    welcomeText = welcomeText.replace(/{server}/g, member.guild.name);
-    welcomeText = welcomeText.replace(/{member_count}/g, member.guild.memberCount.toString());
-
-    const textColor = settings.text_color || '#FFFFFF';
-    const textSize = settings.text_size || 40;
-
-    ctx.save();
-    ctx.font = `bold ${textSize}px Arial`;
-    ctx.fillStyle = textColor;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    ctx.fillText(welcomeText, 400, 320);
-    ctx.restore();
-
-    // Draw member count only if enabled
-    if (settings.show_member_count) {
-        ctx.save();
-        ctx.font = '20px Arial';
-        ctx.fillStyle = textColor;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 8;
-        ctx.fillText(`Member #${member.guild.memberCount}`, 400, 360);
-        ctx.restore();
-    }
-
-    // Convert canvas to buffer
-    const buffer = canvas.toBuffer('image/png');
-
-    return {
-        attachment: buffer,
-        name: 'welcome.png'
-    };
 }
 
 // ==================== SAVE MEMBER JOIN TO DATABASE ====================
