@@ -634,7 +634,6 @@ app.post('/api/welcome/config', requireAuth, panelSecurityGuard, async (req, res
         `;
 
         // Sanitizzazione dei dati prima del salvataggio
-        // Sanitizzazione dei dati prima del salvataggio
         const finalSize = parseInt(textSize) > 0 ? parseInt(textSize) : 40;
         const finalTextColor = textColor && textColor !== '' ? textColor : '#FFFFFF';
         const finalEmbedColor = embedColor && embedColor !== '' ? embedColor : '#FFFFFF';
