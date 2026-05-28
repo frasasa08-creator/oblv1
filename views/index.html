@@ -255,6 +255,22 @@
                             <input type="number" id="avatar-border-width" name="avatarBorderWidth" value="5" min="0" max="20">
                         </div>
                         <div class="form-group">
+                            <label for="welcome-embed-title">Embed Title ({user}, {count})</label>
+                            <input type="text" id="welcome-embed-title" name="embedTitle" placeholder="WELCOME">
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-embed-description">Embed Description ({user}, {count})</label>
+                            <textarea id="welcome-embed-description" name="embedDescription" rows="3" placeholder="Benvenuto {user}..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-embed-color">Embed Color</label>
+                            <input type="color" id="welcome-embed-color" name="embedColor" value="#FFFFFF">
+                        </div>
+                        <div class="form-group">
+                            <label for="welcome-embed-thumbnail">Embed Thumbnail URL</label>
+                            <input type="url" id="welcome-embed-thumbnail" name="embedThumbnail" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
                             <label>
                                 <input type="checkbox" id="show-member-count" name="showMemberCount">
                                 Show Member Count
