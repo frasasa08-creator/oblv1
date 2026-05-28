@@ -35,16 +35,14 @@ async function createWelcomeEmbed(user, memberCount, config) {
             .setDescription(description)
             .setColor(config.embed_color ? parseInt(config.embed_color.replace('#', ''), 16) : 0xFFFFFF);
 
-        const welcomeImageUrl = config.welcome_image;
-        const embedThumbnailUrl = config.embed_thumbnail;
+        const welcomeImageUrl = config.welcome_image ? String(config.welcome_image) : null;
+        const embedThumbnailUrl = config.embed_thumbnail ? String(config.embed_thumbnail) : null;
 
-        console.log('DEBUG createWelcomeEmbed: welcomeImageUrl (before set):', welcomeImageUrl, 'type:', typeof welcomeImageUrl);
-        if (welcomeImageUrl) {
-            embed.setImage(String(welcomeImageUrl)); // Converte esplicitamente a stringa primitiva
+        if (welcomeImageUrl && welcomeImageUrl.startsWith('http')) {
+            embed.setImage(welcomeImageUrl);
         }
-        console.log('DEBUG createWelcomeEmbed: embedThumbnailUrl (before set):', embedThumbnailUrl, 'type:', typeof embedThumbnailUrl);
-        if (embedThumbnailUrl) {
-            embed.setThumbnail(String(embedThumbnailUrl)); // Converte esplicitamente a stringa primitiva
+        if (embedThumbnailUrl && embedThumbnailUrl.startsWith('http')) {
+            embed.setThumbnail(embedThumbnailUrl);
         }
 
             //.setTimestamp();
