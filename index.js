@@ -8,6 +8,7 @@ require('dotenv').config();
 
 // Import SQLite database
 const { pool } = require('./database');
+const { createWelcomeImage } = require('./utils/welcomeUtils');
 
 // Import authentication middleware
 const passport = require('passport');
@@ -649,6 +650,31 @@ app.post('/api/welcome/config', requireAuth, panelSecurityGuard, async (req, res
         await auditPanelAction(req, 'welcome_config_update', 200, 'Welcome configuration saved', guildId);
     } catch (error) {
         await auditPanelAction(req, 'welcome_config_update', 500, error.message, req.body?.guildId || null);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/welcome/preview', requireAuth, async (req, res) => {
+    try {
+        const { welcomeImage, welcomeText, textColor, textSize, avatarBorderColor, avatarBorderWidth, showMemberCount } = req.body;
+        
+        const mockUser = { username: 'Username', avatarURL: 'https://cdn.discordapp.com/embed/avatars/0.png' };
+        const mockGuild = { name: 'Server Name', memberCount: 123 };
+        
+        const settings = {
+            welcome_image: welcomeImage,
+            welcome_text: welcomeText,
+            text_color: textColor,
+            text_size: parseInt(textSize) || 40,
+            avatar_border_color: avatarBorderColor,
+            avatar_border_width: parseInt(avatarBorderWidth) || 5,
+            show_member_count: showMemberCount === true || showMemberCount === 'true'
+        };
+
+        const image = await createWelcomeImage(mockUser, mockGuild, settings);
+        res.set('Content-Type', 'image/png');
+        res.send(image.attachment);
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
