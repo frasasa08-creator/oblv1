@@ -723,9 +723,21 @@ app.post('/api/ticket/create-panel', requireAuth, panelSecurityGuard, async (req
         // Create select menu options
         const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 
+        // Funzione per convertire :nome: nel formato Discord <:nome:id>
+        const resolveEmojis = (text, guild) => {
+            if (!text) return text;
+            return text.replace(/:(\w+):/g, (match, name) => {
+                const emoji = guild.emojis.cache.find(e => e.name === name);
+                return emoji ? emoji.toString() : match;
+            });
+        };
+
         const selectOptions = options.map((opt, index) => {
             let emojiData = opt.emoji || '🎫';
             
+            // Risolviamo prima il formato :nome: se presente
+            emojiData = resolveEmojis(emojiData, guild);
+
             // Verifica se l'emoji è nel formato Discord <:nome:id> o <a:nome:id>
             const customEmojiMatch = emojiData.match(/<?(?:a)?:?\w+:(\d+)>?/);
             if (customEmojiMatch) {
@@ -752,8 +764,8 @@ app.post('/api/ticket/create-panel', requireAuth, panelSecurityGuard, async (req
 
         // Create embed
         const embed = new EmbedBuilder()
-            .setTitle(config.title || '🎫 Support Tickets')
-            .setDescription(config.description || 'Select a ticket type below to create a support ticket.')
+            .setTitle(resolveEmojis(config.title || '🎫 Support Tickets', guild))
+            .setDescription(resolveEmojis(config.description || 'Select a ticket type below to create a support ticket.', guild))
             .setColor(config.embed_color ? parseInt(config.embed_color.replace('#', ''), 16) : 0x5865F2);
 
         if (config.show_timestamp) {
