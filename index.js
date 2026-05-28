@@ -600,27 +600,46 @@ app.post('/api/bot/config', requireAuth, panelSecurityGuard, async (req, res) =>
 // Welcome system endpoints
 app.post('/api/welcome/config', requireAuth, panelSecurityGuard, async (req, res) => {
     try {
-        const { guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, welcomeImage, welcomeMode, welcomeText, textColor, textSize, avatarBorderColor, avatarBorderWidth, showMemberCount } = req.body;
+        const { 
+            guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, 
+            welcomeImage, welcomeMode, welcomeText, textColor, textSize, 
+            avatarBorderColor, avatarBorderWidth, showMemberCount,
+            embedTitle, embedDescription, embedColor, embedThumbnail 
+        } = req.body;
 
         const query = `
-            INSERT INTO welcome_config (guild_id, welcome_channel, welcome_log_channel, quit_log_channel, welcome_image, welcome_mode, welcome_text, text_color, text_size, avatar_border_color, avatar_border_width, show_member_count)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO welcome_config (
+                guild_id, welcome_channel, welcome_log_channel, quit_log_channel, 
+                welcome_image, welcome_mode, welcome_text, text_color, text_size, 
+                avatar_border_color, avatar_border_width, show_member_count,
+                embed_title, embed_description, embed_color, embed_thumbnail
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(guild_id) DO UPDATE SET
-                welcome_channel = ?,
-                welcome_log_channel = ?,
-                quit_log_channel = ?,
-                welcome_image = ?,
-                welcome_mode = ?,
-                welcome_text = ?,
-                text_color = ?,
-                text_size = ?,
-                avatar_border_color = ?,
-                avatar_border_width = ?,
-                show_member_count = ?
+                welcome_channel = excluded.welcome_channel,
+                welcome_log_channel = excluded.welcome_log_channel,
+                quit_log_channel = excluded.quit_log_channel,
+                welcome_image = excluded.welcome_image,
+                welcome_mode = excluded.welcome_mode,
+                welcome_text = excluded.welcome_text,
+                text_color = excluded.text_color,
+                text_size = excluded.text_size,
+                avatar_border_color = excluded.avatar_border_color,
+                avatar_border_width = excluded.avatar_border_width,
+                show_member_count = excluded.show_member_count,
+                embed_title = excluded.embed_title,
+                embed_description = excluded.embed_description,
+                embed_color = excluded.embed_color,
+                embed_thumbnail = excluded.embed_thumbnail
         `;
 
-        await pool.query(query, [guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, welcomeImage, welcomeMode, welcomeText, textColor, textSize, avatarBorderColor, avatarBorderWidth, showMemberCount,
-                              welcomeChannel, welcomeLogChannel, quitLogChannel, welcomeImage, welcomeMode, welcomeText, textColor, textSize, avatarBorderColor, avatarBorderWidth, showMemberCount]);
+        const size = parseInt(textSize) || 40;
+        await pool.query(query, [
+            guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, 
+            welcomeImage, welcomeMode, welcomeText, textColor, size, 
+            avatarBorderColor, avatarBorderWidth, showMemberCount,
+            embedTitle, embedDescription, embedColor, embedThumbnail
+        ]);
 
         res.json({ success: true, message: 'Welcome configuration updated' });
         await auditPanelAction(req, 'welcome_config_update', 200, 'Welcome configuration saved', guildId);
