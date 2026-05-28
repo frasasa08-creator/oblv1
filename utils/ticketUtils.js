@@ -156,8 +156,17 @@ async function createTicket(interaction, optionValue) {
                 .setStyle(ButtonStyle.Danger)
         );
 
+        // Funzione helper locale per risolvere le emoji nel messaggio
+        const resolveEmojiString = (text, guild) => {
+            if (!text) return text;
+            return text.replace(/:(\w+):/g, (match, name) => {
+                const emoji = guild.emojis.cache.find(e => e.name === name);
+                return emoji ? emoji.toString() : match;
+            });
+        };
+
         await ticketChannel.send({
-            content: `${user.toString()} - ${selectedOption.emoji ?? ''}`,
+            content: `${user.toString()} - ${resolveEmojiString(selectedOption.emoji ?? '', guild)}`,
             embeds: [welcomeEmbed],
             components: [closeButton]
         });
