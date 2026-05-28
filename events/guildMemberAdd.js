@@ -30,8 +30,7 @@ async function handleWelcomeSystem(member, pool) {
             return;
         }
 
-        const settings = result.rows[0];
-        const welcomeChannel = member.guild.channels.cache.get(settings.welcome_channel);
+        const settings = result.rows[0];ild.channels.cache.get(settings.welcome_channel);
         if (!welcomeChannel) return;
 
         const welcomeMode = settings.welcome_mode || 'image'; // 'image' or 'embed'
