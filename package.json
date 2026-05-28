@@ -1,0 +1,44 @@
+{
+  "name": "bossbot",
+  "version": "1.0.0",
+  "description": "BossBot - Advanced Discord Bot with Web Control Panel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "setup": "pm2 start index.js --name bossbot && pm2 save",
+    "deploy": "pm2 start index.js --name bossbot && pm2 save",
+    "deploy-commands": "node deploy-commands.js",
+    "restart": "pm2 restart bossbot",
+    "stop": "pm2 stop bossbot",
+    "logs": "pm2 logs bossbot",
+    "monitor": "node monitor-bot.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "canvas": "^2.11.2",
+    "discord.js": "^14.24.2",
+    "dotenv": "^16.3.1",
+    "express": "^5.1.0",
+    "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4",
+    "pg": "^8.11.3",
+    "pm2": "^6.0.13",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "welcome",
+    "ticket",
+    "moderation",
+    "web-panel",
+    "control-panel"
+  ],
+  "author": "BossBot Team",
+  "license": "MIT"
+}
