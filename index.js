@@ -633,12 +633,17 @@ app.post('/api/welcome/config', requireAuth, panelSecurityGuard, async (req, res
                 embed_thumbnail = excluded.embed_thumbnail
         `;
 
-        const size = parseInt(textSize) > 0 ? parseInt(textSize) : 40;
+        // Sanitizzazione dei dati prima del salvataggio
+        // Sanitizzazione dei dati prima del salvataggio
+        const finalSize = parseInt(textSize) > 0 ? parseInt(textSize) : 40;
+        const finalTextColor = textColor && textColor !== '' ? textColor : '#FFFFFF';
+        const finalEmbedColor = embedColor && embedColor !== '' ? embedColor : '#FFFFFF';
+
         await pool.query(query, [
-            guildId, welcomeChannel, welcomeLogChannel, quitLogChannel, 
-            welcomeImage, welcomeMode, welcomeText, textColor, size, 
+            guildId, welcomeChannel, welcomeLogChannel, quitLogChannel,
+            welcomeImage, welcomeMode, welcomeText, finalTextColor, finalSize,
             avatarBorderColor, avatarBorderWidth, showMemberCount,
-            embedTitle, embedDescription, embedColor, embedThumbnail
+            embedTitle, embedDescription, finalEmbedColor, embedThumbnail
         ]);
 
         res.json({ success: true, message: 'Welcome configuration updated' });
