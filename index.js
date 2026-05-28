@@ -723,12 +723,23 @@ app.post('/api/ticket/create-panel', requireAuth, panelSecurityGuard, async (req
         // Create select menu options
         const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 
-        const selectOptions = options.map((opt, index) => ({
-            label: opt.label.substring(0, 100),
-            value: `ticket_${index}`,
-            description: opt.label.substring(0, 100),
-            emoji: opt.emoji || '🎫'
-        }));
+        const selectOptions = options.map((opt, index) => {
+            let emojiData = opt.emoji || '🎫';
+            
+            // Verifica se l'emoji è nel formato Discord <:nome:id> o <a:nome:id>
+            const customEmojiMatch = emojiData.match(/<?(?:a)?:?\w+:(\d+)>?/);
+            if (customEmojiMatch) {
+                // Se è un'emoji custom, estraiamo solo l'ID numerico
+                emojiData = customEmojiMatch[1];
+            }
+
+            return {
+                label: opt.label.substring(0, 100),
+                value: `ticket_${index}`,
+                description: opt.label.substring(0, 100),
+                emoji: emojiData
+            };
+        });
 
         // Create the select menu
         const selectMenu = new StringSelectMenuBuilder()
