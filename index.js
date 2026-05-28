@@ -3,6 +3,7 @@ const { Client, GatewayIntentBits, Collection, REST, Routes, PermissionFlagsBits
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const https = require('https');
 require('dotenv').config();
 
 // Import SQLite database
@@ -367,6 +368,10 @@ app.get('/api/user', (req, res) => {
 // Web routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+app.get('/ping', (req, res) => {
+    res.status(200).send('OK');
 });
 
 app.get('/api/status', (req, res) => {
@@ -1031,6 +1036,19 @@ app.post('/api/embed/create', requireAuth, panelSecurityGuard, async (req, res) 
 // Start server
 app.listen(PORT, () => {
     console.log(`🎉 ${BOT_NAME} Web Server started on port ${PORT}`);
+
+    // Sistema Keep-Alive per Render (evita lo shutdown automatico dopo 15 min)
+    const publicUrl = process.env.RENDER_EXTERNAL_URL;
+    if (publicUrl) {
+        console.log(`📡 Rilevato URL pubblico: ${publicUrl}. Avvio auto-ping ogni 13 minuti.`);
+        setInterval(() => {
+            https.get(`${publicUrl}/ping`, (res) => {
+                console.log(`💓 Keep-alive: segnale inviato con successo (Status: ${res.statusCode})`);
+            }).on('error', (err) => {
+                console.error('❌ Errore durante il Keep-alive:', err.message);
+            });
+        }, 13 * 60 * 1000); // 13 minuti
+    }
 });
 
 // Login to Discord
