@@ -699,24 +699,28 @@ app.get('/api/welcome/config/:guildId', requireAuth, panelSecurityGuard, async (
 // Ticket system endpoints
 app.post('/api/ticket/config', requireAuth, panelSecurityGuard, async (req, res) => {
     try {
-        const { guildId, logChannel, title, description, color, image, footer, showTimestamp, options } = req.body;
+        const { guildId, logChannel, title, description, color, image, footer, showTimestamp, options, supportRoles } = req.body;
 
         const query = `
-            INSERT INTO ticket_config (guild_id, log_channel, title, description, embed_color, panel_image, footer_text, show_timestamp, options)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO ticket_config (guild_id, log_channel, title, description, embed_color, panel_image, footer_text, show_timestamp, options, support_roles)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(guild_id) DO UPDATE SET
-                log_channel = ?,
-                title = ?,
-                description = ?,
-                embed_color = ?,
-                panel_image = ?,
-                footer_text = ?,
-                show_timestamp = ?,
-                options = ?
+                log_channel = excluded.log_channel,
+                title = excluded.title,
+                description = excluded.description,
+                embed_color = excluded.embed_color,
+                panel_image = excluded.panel_image,
+                footer_text = excluded.footer_text,
+                show_timestamp = excluded.show_timestamp,
+                options = excluded.options,
+                support_roles = excluded.support_roles,
+                updated_at = datetime('now')
         `;
 
-        await pool.query(query, [guildId, logChannel, title, description, color, image, footer, showTimestamp, JSON.stringify(options),
-                              logChannel, title, description, color, image, footer, showTimestamp, JSON.stringify(options)]);
+        await pool.query(query, [
+            guildId, logChannel, title, description, color, image, footer, showTimestamp, 
+            JSON.stringify(options), JSON.stringify(supportRoles || [])
+        ]);
 
         res.json({ success: true, message: 'Ticket configuration updated' });
         await auditPanelAction(req, 'ticket_config_update', 200, 'Ticket configuration saved', guildId);
