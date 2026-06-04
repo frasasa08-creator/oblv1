@@ -111,6 +111,11 @@ function initializeDatabase() {
     } catch (e) {
         // Column already exists
     }
+    try {
+        db.exec(`ALTER TABLE ticket_config ADD COLUMN support_roles TEXT`);
+    } catch (e) {
+        // Column already exists
+    }
 
     // Server Logs
     db.exec(`
