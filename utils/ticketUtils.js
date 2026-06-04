@@ -88,16 +88,24 @@ async function createTicket(interaction, optionValue) {
             });
         }
 
-        // Recupera le opzioni ticket
-        const settingsResult = await pool.query(
-            'SELECT settings FROM guild_settings WHERE guild_id = ?',
+        // Recupera la configurazione ticket (preferenza ticket_config dal web panel)
+        const configResult = await pool.query(
+            'SELECT options FROM ticket_config WHERE guild_id = ?',
             [guild.id]
         );
-        if (!settingsResult.rows.length || !settingsResult.rows[0].settings?.ticket_options) {
-            return await interaction.editReply({ content: 'Configurazione ticket non trovata!' });
+        
+        let ticketOptions = [];
+        if (configResult.rows.length > 0) {
+            ticketOptions = JSON.parse(configResult.rows[0].options || '[]');
+        } else {
+            // Fallback su guild_settings (vecchio comando /ticket_panel)
+            const settingsResult = await pool.query('SELECT settings FROM guild_settings WHERE guild_id = ?', [guild.id]);
+            ticketOptions = settingsResult.rows[0]?.settings?.ticket_options || [];
         }
-        const ticketOptions = settingsResult.rows[0].settings.ticket_options;
-        const selectedOption = ticketOptions.find(opt => opt.value === optionValue);
+
+        // Cerca l'opzione selezionata (gestisce sia valori custom che indici ticket_0)
+        const selectedOption = ticketOptions.find((opt, index) => opt.value === optionValue || `ticket_${index}` === optionValue);
+        
         if (!selectedOption) {
             return await interaction.editReply({ content: 'Opzione ticket non valida!' });
         }
@@ -125,14 +133,17 @@ async function createTicket(interaction, optionValue) {
             parent: category
         });
 
-        await ticketChannel.lockPermissions();
+        // 1. Sincronizza i permessi con la categoria (permette allo Staff di vedere il ticket)
+        await ticketChannel.lockPermissions().catch(e => console.log("Errore lockPermissions:", e));
+        
+        // 2. Aggiunge specificamente l'utente che ha aperto il ticket
         await ticketChannel.permissionOverwrites.edit(user.id, {
             ViewChannel: true,
             SendMessages: true,
             ReadMessageHistory: true,
             AttachFiles: true,
             EmbedLinks: true
-        });
+        }).catch(e => console.log("Errore permissionOverwrites:", e));
 
         // Salva nel DB con channel_name
         const ticketResult = await pool.query(
@@ -243,7 +254,9 @@ async function closeTicketWithReason(interaction) {
         const reason = interaction.fields.getTextInputValue('close_reason');
         const channel = interaction.channel;
         const user = interaction.user;
+        const guild = interaction.guild;
 
+        // Recupera dati ticket per verificare chi lo ha aperto
         const ticketResult = await pool.query(
             'SELECT * FROM tickets WHERE channel_id = ? AND status = ?',
             [channel.id, 'open']
@@ -252,6 +265,18 @@ async function closeTicketWithReason(interaction) {
             return await interaction.editReply({ content: 'Questo non è un canale ticket valido!' });
         }
         const ticket = ticketResult.rows[0];
+
+        // Controllo permessi: Solo Staff o Creatore possono chiudere
+        const configRes = await pool.query('SELECT support_roles FROM ticket_config WHERE guild_id = ?', [guild.id]);
+        const supportRoles = configRes.rows[0]?.support_roles ? JSON.parse(configRes.rows[0].support_roles) : [];
+        
+        const isStaff = interaction.member.permissions.has(PermissionFlagsBits.Administrator) || 
+                        interaction.member.roles.cache.some(r => supportRoles.includes(r.id));
+        const isCreator = user.id === ticket.user_id;
+
+        if (!isStaff && !isCreator) {
+            return await interaction.editReply({ content: '❌ Solo lo staff o chi ha aperto il ticket può chiuderlo.' });
+        }
 
         console.log(`Generazione transcript per ticket ${ticket.id}...`);
         const transcript = await generateOblivionBotTranscript(channel, ticket.id);
