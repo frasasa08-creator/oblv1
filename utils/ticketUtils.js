@@ -90,13 +90,15 @@ async function createTicket(interaction, optionValue) {
 
         // Recupera la configurazione ticket (preferenza ticket_config dal web panel)
         const configResult = await pool.query(
-            'SELECT options FROM ticket_config WHERE guild_id = ?',
+            'SELECT options, support_roles FROM ticket_config WHERE guild_id = ?',
             [guild.id]
         );
         
         let ticketOptions = [];
+        let supportRoles = [];
         if (configResult.rows.length > 0) {
             ticketOptions = JSON.parse(configResult.rows[0].options || '[]');
+            supportRoles = JSON.parse(configResult.rows[0].support_roles || '[]');
         } else {
             // Fallback su guild_settings (vecchio comando /ticket_panel)
             const settingsResult = await pool.query('SELECT settings FROM guild_settings WHERE guild_id = ?', [guild.id]);
@@ -136,7 +138,18 @@ async function createTicket(interaction, optionValue) {
         // 1. Sincronizza i permessi con la categoria (permette allo Staff di vedere il ticket)
         await ticketChannel.lockPermissions().catch(e => console.log("Errore lockPermissions:", e));
         
-        // 2. Aggiunge specificamente l'utente che ha aperto il ticket
+        // 2. Aggiunge i ruoli di supporto configurati nel panel (per sicurezza extra)
+        for (const roleId of supportRoles) {
+            await ticketChannel.permissionOverwrites.edit(roleId, {
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true,
+                AttachFiles: true,
+                EmbedLinks: true
+            }).catch(e => console.log(`Errore permessi staff (${roleId}):`, e));
+        }
+
+        // 3. Aggiunge specificamente l'utente che ha aperto il ticket
         await ticketChannel.permissionOverwrites.edit(user.id, {
             ViewChannel: true,
             SendMessages: true,
